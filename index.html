@@ -1,0 +1,355 @@
+הקוד המעודכן הוא גרסה מקוצרת ודחוסה של הקוד הקודם, תוך שמירה על כל הפונקציונליות המרכזית: אימות משתמשים (Firebase Auth), ניהול גישה באמצעות קופונים (Firestore), טעינת כלי AI מ-Google Sheets ואינטגרציה בסיסית עם Gemini API.
+
+שימו לב:
+
+תצטרכו עדיין להחליף את YOUR_GOOGLE_SHEET_ID במזהה הגיליון שלכם ב-Google Sheets.
+
+הגיליון צריך להיות מוגדר לגישה ציבורית (לפחות לקריאה) או לשתף עם חשבון השירות של ה-API.
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Master - גישה לעולם הבינה המלאכותית</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .btn-primary { @apply bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:scale-105; }
+        .btn-secondary { @apply bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg shadow hover:bg-gray-300 transition duration-300 ease-in-out; }
+        .card { @apply bg-white rounded-xl shadow-md p-6 border border-gray-200; }
+    </style>
+</head>
+<body class="text-right">
+    <header class="bg-white shadow-md py-4">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-indigo-700">AI Master</h1>
+            <nav>
+                <ul class="flex space-x-6 space-x-reverse">
+                    <li><a href="#home" class="text-gray-600 hover:text-indigo-600 font-semibold">בית</a></li>
+                    <li><a href="#courses" class="text-gray-600 hover:text-indigo-600 font-semibold">הדרכות</a></li>
+                    <li><a href="#ai-generator" class="text-gray-600 hover:text-indigo-600 font-semibold">מחולל AI</a></li>
+                    <li><a href="#ai-tools" class="text-gray-600 hover:text-indigo-600 font-semibold">מאגר כלים</a></li>
+                    <li><button id="loginButton" class="btn-primary py-2 px-4 text-sm">התחבר / הרשם</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 text-center">
+        <div class="container">
+            <h2 class="text-5xl font-extrabold mb-6 leading-tight">שלטו בעולם הבינה המלאכותית</h2>
+            <p class="text-xl mb-8 max-w-3xl mx-auto">
+                קבלו גישה ל-30 יום של הדרכות AI מקצועיות, מחולל AI מתקדם ומאגר כלים מקיף שיעזור לכם להפוך למומחי AI.
+            </p>
+            <button id="purchaseCouponBtn" class="btn-primary text-lg">רכשו גישה עכשיו!</button>
+            <p class="mt-4 text-sm">גישה מיידית לכל התוכן והכלים.</p>
+        </div>
+    </section>
+
+    <section id="why-choose-us" class="py-16 bg-white">
+        <div class="container text-center">
+            <h3 class="text-4xl font-bold text-gray-800 mb-12">למה AI Master?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card">
+                    <div class="text-indigo-600 text-5xl mb-4">💡</div>
+                    <h4 class="text-xl font-semibold mb-2">הדרכות מקיפות</h4>
+                    <p class="text-gray-600">למדו את יסודות הבינה המלאכותית ועד נושאים מתקדמים, עם דוגמאות ותרגילים מעשיים.</p>
+                </div>
+                <div class="card">
+                    <div class="text-indigo-600 text-5xl mb-4">🤖</div>
+                    <h4 class="text-xl font-semibold mb-2">מחולל AI אינטראקטיבי</h4>
+                    <p class="text-gray-600">התנסו ביצירת תוכן, תמונות או קוד בעזרת מחולל הבינה המלאכותית שלנו.</p>
+                </div>
+                <div class="card">
+                    <div class="text-indigo-600 text-5xl mb-4">🛠️</div>
+                    <h4 class="text-xl font-semibold mb-2">מאגר כלים עצום</h4>
+                    <p class="text-gray-600">גלו את מיטב כלי ה-AI ברשת, עם הסברים מפורטים וטיפים לשימוש.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="courses" class="py-16 bg-gray-100">
+        <div class="container">
+            <h3 class="text-4xl font-bold text-gray-800 mb-12 text-center">ספר הדרכות מקצועי</h3>
+            <div id="courses-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card text-center">
+                    <h4 class="text-2xl font-semibold mb-4 text-indigo-600">גישה מוגבלת</h4>
+                    <p class="text-gray-700 mb-4">כדי לצפות בהדרכות, עליך לרכוש ולהפעיל קופון גישה.</p>
+                    <button class="btn-primary text-sm" onclick="document.getElementById('purchaseCouponBtn').click()">רכשו גישה עכשיו</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ai-generator" class="py-16 bg-white">
+        <div class="container">
+            <h3 class="text-4xl font-bold text-gray-800 mb-12 text-center">מחולל בינה מלאכותית</h3>
+            <div id="ai-generator-content" class="card">
+                <h4 class="text-2xl font-semibold mb-4 text-indigo-600 text-center">גישה מוגבלת</h4>
+                <p class="text-gray-700 mb-4 text-center">כדי להשתמש במחולל ה-AI, עליך לרכוש ולהפעיל קופון גישה.</p>
+                <div class="text-center">
+                    <button class="btn-primary text-sm" onclick="document.getElementById('purchaseCouponBtn').click()">רכשו גישה עכשיו</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ai-tools" class="py-16 bg-gray-100">
+        <div class="container">
+            <h3 class="text-4xl font-bold text-gray-800 mb-12 text-center">מאגר כלי AI</h3>
+            <div id="ai-tools-content" class="card">
+                <h4 class="text-2xl font-semibold mb-4 text-indigo-600 text-center">גישה מוגבלת</h4>
+                <p class="text-gray-700 mb-4 text-center">כדי לצפות במאגר כלי ה-AI, עליך לרכוש ולהפעיל קופון גישה.</p>
+                <div class="text-center">
+                    <button class="btn-primary text-sm" onclick="document.getElementById('purchaseCouponBtn').click()">רכשו גישה עכשיו</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 text-center">
+        <div class="container">
+            <p>&copy; 2025 AI Master. כל הזכויות שמורות.</p>
+            <p class="mt-2 text-sm">
+                <a href="#" class="text-gray-400 hover:text-white">מדיניות פרטיות</a> |
+                <a href="#" class="text-gray-400 hover:text-white">תנאי שימוש</a>
+            </p>
+        </div>
+    </footer>
+
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-right relative">
+            <button id="closeModalBtn" class="absolute top-4 left-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 text-center">התחבר / הרשם</h3>
+            <div id="authForm">
+                <p class="text-gray-700 text-center">טען את Firebase SDK והוסף כאן את טפסי ההתחברות/הרשמה/הפעלת קופון.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let aiToolsData = [];
+        const GOOGLE_SHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
+        const GOOGLE_SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/Sheet1!A:Z?key=`;
+
+        // Initial sign-in (custom token or anonymous)
+        async function initialSignIn() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            } catch (error) { console.error("Error during initial sign in:", error); }
+        }
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const loginBtn = document.getElementById('loginButton');
+            if (user) {
+                checkUserAccess(user.uid);
+                loginBtn.textContent = 'התנתק';
+                loginBtn.onclick = handleSignOut;
+            } else {
+                displayAccessRestrictedContent();
+                loginBtn.textContent = 'התחבר / הרשם';
+                loginBtn.onclick = openAuthModal;
+            }
+        });
+
+        initialSignIn();
+
+        // Check user access based on Firestore profile
+        async function checkUserAccess(uid) {
+            if (!uid) { displayAccessRestrictedContent(); return; }
+            try {
+                const userDocSnap = await getDoc(doc(db, `artifacts/${appId}/users/${uid}/profile/`));
+                const userData = userDocSnap.data();
+                const accessExpiry = userData?.accessExpiry ? new Date(userData.accessExpiry) : null;
+                if (accessExpiry && accessExpiry > new Date()) displayPremiumContent();
+                else displayAccessRestrictedContent();
+            } catch (error) { console.error("Error checking user access:", error); displayAccessRestrictedContent(); }
+        }
+
+        // Display premium content
+        async function displayPremiumContent() {
+            document.getElementById('courses-content').innerHTML = `
+                <div class="card"><h4 class="text-xl font-semibold mb-2">קורס: יסודות ה-AI</h4><p class="text-gray-600">הבנה מעמיקה של עקרונות הבינה המלאכותית.</p><button class="btn-secondary mt-4 text-sm">התחל ללמוד</button></div>
+                <div class="card"><h4 class="text-xl font-semibold mb-2">קורס: הנדסת פרומפטים</h4><p class="text-gray-600">כיצד לכתוב הנחיות יעילות למודלי שפה גדולים.</p><button class="btn-secondary mt-4 text-sm">התחל ללמוד</button></div>
+            `;
+            document.getElementById('ai-generator-content').innerHTML = `
+                <h4 class="text-2xl font-semibold mb-4 text-gray-800 text-center">מחולל AI</h4>
+                <div class="mb-4"><label for="promptInput" class="block text-gray-700 text-sm font-bold mb-2">הזן הנחיה (פרומפט):</label><textarea id="promptInput" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32" placeholder="כתוב כאן את ההנחיה שלך..."></textarea></div>
+                <button id="generateBtn" class="btn-primary w-full">צור תוכן</button>
+                <div id="generatorOutput" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px] text-gray-800 whitespace-pre-wrap">הפלט יופיע כאן...</div>
+                <div id="generatorLoading" class="hidden text-center mt-4 text-indigo-600">טוען...</div>
+            `;
+            document.getElementById('generateBtn').onclick = generateAIContent;
+            await loadAIToolsFromGoogleSheets();
+            document.getElementById('ai-tools-content').innerHTML = `
+                <h4 class="text-2xl font-semibold mb-4 text-gray-800 text-center">מאגר כלי AI</h4>
+                <div class="mb-4"><input type="text" id="toolSearchInput" placeholder="חפש כלי AI..." class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></div>
+                <div id="aiToolsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            `;
+            renderAITools(aiToolsData);
+            document.getElementById('toolSearchInput').onkeyup = filterAITools;
+        }
+
+        // Display restricted content
+        function displayAccessRestrictedContent() {
+            const restrictedHtml = (msg) => `
+                <div class="card text-center"><h4 class="text-2xl font-semibold mb-4 text-indigo-600">גישה מוגבלת</h4><p class="text-gray-700 mb-4">${msg}</p><button class="btn-primary text-sm" onclick="document.getElementById('purchaseCouponBtn').click()">רכשו גישה עכשיו</button></div>
+            `;
+            document.getElementById('courses-content').innerHTML = restrictedHtml('כדי לצפות בהדרכות, עליך לרכוש ולהפעיל קופון גישה.');
+            document.getElementById('ai-generator-content').innerHTML = restrictedHtml('כדי להשתמש במחולל ה-AI, עליך לרכוש ולהפעיל קופון גישה.');
+            document.getElementById('ai-tools-content').innerHTML = restrictedHtml('כדי לצפות במאגר כלי ה-AI, עליך לרכוש ולהפעיל קופון גישה.');
+        }
+
+        // Auth modal functions
+        const authModal = document.getElementById('authModal');
+        document.getElementById('loginButton').addEventListener('click', () => { authModal.classList.remove('hidden'); renderAuthForms(); });
+        document.getElementById('closeModalBtn').addEventListener('click', () => authModal.classList.add('hidden'));
+
+        function renderAuthForms() {
+            document.getElementById('authForm').innerHTML = `
+                <div class="mb-6"><label for="emailInput" class="block text-gray-700 text-sm font-bold mb-2">אימייל:</label><input type="email" id="emailInput" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="הכנס אימייל"></div>
+                <div class="mb-6"><label for="passwordInput" class="block text-gray-700 text-sm font-bold mb-2">סיסמה:</label><input type="password" id="passwordInput" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="הכנס סיסמה"></div>
+                <button id="signInBtn" class="btn-primary w-full mb-4">התחבר</button>
+                <button id="signUpBtn" class="btn-secondary w-full mb-6">הרשם</button>
+                <hr class="my-6 border-gray-300">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800 text-center">הפעל קופון גישה</h4>
+                <div class="mb-4"><label for="couponCodeInput" class="block text-gray-700 text-sm font-bold mb-2">קוד קופון:</label><input type="text" id="couponCodeInput" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="הכנס קוד קופון"></div>
+                <button id="activateCouponBtn" class="btn-primary w-full">הפעל קופון</button>
+                <p id="authMessage" class="text-center text-sm mt-4 text-red-500"></p>
+            `;
+            document.getElementById('signInBtn').addEventListener('click', handleSignIn);
+            document.getElementById('signUpBtn').addEventListener('click', handleSignUp);
+            document.getElementById('activateCouponBtn').addEventListener('click', handleActivateCoupon);
+        }
+
+        // Auth handlers
+        async function handleAuth(action) {
+            const [email, password, msgElem] = [document.getElementById('emailInput').value, document.getElementById('passwordInput').value, document.getElementById('authMessage')];
+            try {
+                if (action === 'signIn') await signInWithEmailAndPassword(auth, email, password);
+                else await createUserWithEmailAndPassword(auth, email, password);
+                msgElem.textContent = action === 'signIn' ? 'התחברת בהצלחה!' : 'נרשמת בהצלחה! אנא התחבר.';
+                msgElem.className = 'text-center text-sm mt-4 text-green-500';
+                if (action === 'signIn') authModal.classList.add('hidden');
+            } catch (error) {
+                msgElem.textContent = `שגיאת ${action === 'signIn' ? 'התחברות' : 'הרשמה'}: ${error.message}`;
+                msgElem.className = 'text-center text-sm mt-4 text-red-500';
+                console.error(`${action} error:`, error);
+            }
+        }
+        const handleSignIn = () => handleAuth('signIn');
+        const handleSignUp = () => handleAuth('signUp');
+
+        async function handleSignOut() { try { await signOut(auth); } catch (error) { console.error("Error signing out:", error); } }
+
+        // Coupon activation
+        async function handleActivateCoupon() {
+            const [couponCode, msgElem] = [document.getElementById('couponCodeInput').value.trim(), document.getElementById('authMessage')];
+            if (!currentUser) { msgElem.textContent = 'יש להתחבר כדי להפעיל קופון.'; msgElem.className = 'text-center text-sm mt-4 text-red-500'; return; }
+            if (!couponCode) { msgElem.textContent = 'אנא הזן קוד קופון.'; msgElem.className = 'text-center text-sm mt-4 text-red-500'; return; }
+
+            try {
+                const q = query(collection(db, `artifacts/${appId}/public/data/coupons`), where("code", "==", couponCode), where("isUsed", "==", false));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) { msgElem.textContent = 'קוד קופון לא חוקי או כבר נוצל.'; msgElem.className = 'text-center text-sm mt-4 text-red-500'; return; }
+
+                const couponDoc = querySnapshot.docs[0];
+                await updateDoc(doc(db, `artifacts/${appId}/public/data/coupons`, couponDoc.id), { isUsed: true, usedBy: currentUser.uid, usedAt: new Date().toISOString() });
+
+                const expiryDate = new Date(); expiryDate.setDate(expiryDate.getDate() + 30);
+                await setDoc(doc(db, `artifacts/${appId}/users/${currentUser.uid}/profile/`), { accessExpiry: expiryDate.toISOString(), lastCouponCode: couponCode }, { merge: true });
+
+                msgElem.textContent = 'קופון הופעל בהצלחה! הגישה שלך תקפה ל-30 יום.';
+                msgElem.className = 'text-center text-sm mt-4 text-green-500';
+                authModal.classList.add('hidden');
+                checkUserAccess(currentUser.uid);
+            } catch (error) {
+                msgElem.textContent = `שגיאה בהפעלת קופון: ${error.message}`;
+                msgElem.className = 'text-center text-sm mt-4 text-red-500';
+                console.error("Activate coupon error:", error);
+            }
+        }
+
+        // AI content generation
+        async function generateAIContent() {
+            const [promptInput, outputElem, loadingElem] = [document.getElementById('promptInput'), document.getElementById('generatorOutput'), document.getElementById('generatorLoading')];
+            const prompt = promptInput.value.trim();
+            if (!prompt) { outputElem.textContent = 'אנא הזן הנחיה.'; return; }
+
+            outputElem.textContent = ''; loadingElem.classList.remove('hidden');
+            try {
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+                outputElem.textContent = result.candidates?.[0]?.content?.parts?.[0]?.text || 'שגיאה: לא התקבל תוכן מה-AI. נסה שוב.';
+            } catch (error) {
+                outputElem.textContent = `שגיאה ביצירת תוכן AI: ${error.message}`;
+                console.error("Error calling Gemini API:", error);
+            } finally { loadingElem.classList.add('hidden'); }
+        }
+
+        // Load AI tools from Google Sheets
+        async function loadAIToolsFromGoogleSheets() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_API_URL);
+                const data = await response.json();
+                if (data?.values?.length > 1) {
+                    const headers = data.values[0];
+                    aiToolsData = data.values.slice(1).map(row => headers.reduce((obj, h, i) => ({ ...obj, [h]: row[i] || '' }), {}));
+                } else { aiToolsData = []; }
+                renderAITools(aiToolsData);
+            } catch (error) {
+                console.error("Error loading AI tools from Google Sheets:", error);
+                document.getElementById('aiToolsList').innerHTML = `<p class="text-red-500 text-center">שגיאה בטעינת כלי AI. אנא נסה שוב מאוחר יותר.</p>`;
+            }
+        }
+
+        // Render AI tools
+        function renderAITools(toolsToRender) {
+            const listDiv = document.getElementById('aiToolsList');
+            if (!listDiv) return;
+            listDiv.innerHTML = toolsToRender.length === 0 ? `<p class="text-gray-600 text-center col-span-full">לא נמצאו כלי AI התואמים לחיפוש.</p>` : '';
+            toolsToRender.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h5 class="text-lg font-semibold mb-2">${tool['שם הכלי'] || 'שם לא ידוע'}</h5>
+                    <p class="text-gray-600 text-sm mb-2">${tool['תיאור קצר'] || 'אין תיאור.'}</p>
+                    ${tool['קישור לאתר'] ? `<a href="${tool['קישור לאתר']}" target="_blank" class="text-indigo-600 hover:underline text-sm mt-2 block">למידע נוסף</a>` : ''}
+                    ${tool['קטגוריה'] ? `<span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mt-2">${tool['קטגוריה']}</span>` : ''}
+                `;
+                listDiv.appendChild(card);
+            });
+        }
+
+        // Filter AI tools
+        function filterAITools() {
+            const filterText = document.getElementById('toolSearchInput').value.toLowerCase();
+            const filteredTools = aiToolsData.filter(tool =>
+                ['שם הכלי', 'תיאור קצר', 'תיאור מפורט', 'קטגוריה'].some(key => (tool[key] || '').toLowerCase().includes(filterText))
+            );
+            renderAITools(filteredTools);
+        }
+
+        document.getElementById('purchaseCouponBtn').addEventListener('click', () => { authModal.classList.remove('hidden'); renderAuthForms(); });
+    </script>
+</body>
+</html>
