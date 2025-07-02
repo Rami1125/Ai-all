@@ -1,28 +1,34 @@
-הקוד המעודכן הוא גרסה מקוצרת ודחוסה של הקוד הקודם, תוך שמירה על כל הפונקציונליות המרכזית: אימות משתמשים (Firebase Auth), ניהול גישה באמצעות קופונים (Firestore), טעינת כלי AI מ-Google Sheets ואינטגרציה בסיסית עם Gemini API.
-
-שימו לב:
-
-תצטרכו עדיין להחליף את YOUR_GOOGLE_SHEET_ID במזהה הגיליון שלכם ב-Google Sheets.
-
-הגיליון צריך להיות מוגדר לגישה ציבורית (לפחות לקריאה) או לשתף עם חשבון השירות של ה-API.
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Master - גישה לעולם הבינה המלאכותית</title>
+    <!-- טעינת Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         .btn-primary { @apply bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:scale-105; }
         .btn-secondary { @apply bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg shadow hover:bg-gray-300 transition duration-300 ease-in-out; }
         .card { @apply bg-white rounded-xl shadow-md p-6 border border-gray-200; }
+        /* Style for AI tool buttons */
+        .ai-tool-button {
+            @apply flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 ease-in-out cursor-pointer text-center;
+        }
+        .ai-tool-button .icon {
+            @apply text-4xl mb-2 text-indigo-600;
+        }
+        .ai-tool-button .name {
+            @apply text-lg font-semibold text-gray-800;
+        }
     </style>
 </head>
 <body class="text-right">
+    <!-- כותרת עליונה (Header) -->
     <header class="bg-white shadow-md py-4">
         <div class="container flex justify-between items-center">
             <h1 class="text-3xl font-bold text-indigo-700">AI Master</h1>
@@ -38,6 +44,7 @@
         </div>
     </header>
 
+    <!-- סעיף דף הבית / תדמית (Hero Section) -->
     <section id="home" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 text-center">
         <div class="container">
             <h2 class="text-5xl font-extrabold mb-6 leading-tight">שלטו בעולם הבינה המלאכותית</h2>
@@ -49,6 +56,7 @@
         </div>
     </section>
 
+    <!-- סעיף "למה לבחור בנו?" -->
     <section id="why-choose-us" class="py-16 bg-white">
         <div class="container text-center">
             <h3 class="text-4xl font-bold text-gray-800 mb-12">למה AI Master?</h3>
@@ -72,6 +80,7 @@
         </div>
     </section>
 
+    <!-- סעיף הדרכות (Courses Section) - תוכן זה יהיה מוגן גישה -->
     <section id="courses" class="py-16 bg-gray-100">
         <div class="container">
             <h3 class="text-4xl font-bold text-gray-800 mb-12 text-center">ספר הדרכות מקצועי</h3>
@@ -85,6 +94,7 @@
         </div>
     </section>
 
+    <!-- סעיף מחולל AI (AI Generator Section) - תוכן זה יהיה מוגן גישה -->
     <section id="ai-generator" class="py-16 bg-white">
         <div class="container">
             <h3 class="text-4xl font-bold text-gray-800 mb-12 text-center">מחולל בינה מלאכותית</h3>
@@ -98,6 +108,7 @@
         </div>
     </section>
 
+    <!-- סעיף מאגר כלי AI (AI Tools Section) - תוכן זה יהיה מוגן גישה -->
     <section id="ai-tools" class="py-16 bg-gray-100">
         <div class="container">
             <h3 class="text-4xl font-bold text-gray-800 mb-12 text-center">מאגר כלי AI</h3>
@@ -111,6 +122,7 @@
         </div>
     </section>
 
+    <!-- סעיף תחתון (Footer) -->
     <footer class="bg-gray-800 text-white py-8 text-center">
         <div class="container">
             <p>&copy; 2025 AI Master. כל הזכויות שמורות.</p>
@@ -121,7 +133,8 @@
         </div>
     </footer>
 
-    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+    <!-- מודאל התחברות/הרשמה -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-right relative">
             <button id="closeModalBtn" class="absolute top-4 left-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
             <h3 class="text-2xl font-bold mb-6 text-gray-800 text-center">התחבר / הרשם</h3>
@@ -131,6 +144,34 @@
         </div>
     </div>
 
+    <!-- מודאל פרטי כלי AI -->
+    <div id="aiToolDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl text-right relative">
+            <button id="closeToolDetailsModalBtn" class="absolute top-4 left-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 id="toolDetailsTitle" class="text-2xl font-bold mb-4 text-gray-800"></h3>
+            <p id="toolDetailsDescription" class="text-gray-700 mb-4"></p>
+            <div class="mb-4">
+                <span class="font-semibold">קטגוריה:</span> <span id="toolDetailsCategory" class="text-gray-600"></span>
+            </div>
+            <div class="mb-4">
+                <span class="font-semibold">יתרונות:</span> <span id="toolDetailsBenefits" class="text-green-600"></span>
+            </div>
+            <div class="mb-4">
+                <span class="font-semibold">חסרונות:</span> <span id="toolDetailsDrawbacks" class="text-red-600"></span>
+            </div>
+            <div class="mb-4">
+                <span class="font-semibold">מקצועות רלוונטיים:</span> <span id="toolDetailsProfessions" class="text-gray-600"></span>
+            </div>
+            <div class="mb-4">
+                <span class="font-semibold">סגנון פרומפט מומלץ:</span> <span id="toolDetailsPromptStyle" class="text-gray-600"></span>
+            </div>
+            <a id="toolDetailsLink" href="#" target="_blank" class="text-indigo-600 hover:underline mt-4 block">בקר באתר הכלי</a>
+            <button id="useToolInGeneratorBtn" class="btn-primary mt-6 w-full">השתמש בכלי במחולל AI</button>
+        </div>
+    </div>
+
+
+    <!-- טעינת Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -144,8 +185,10 @@
 
         let currentUser = null;
         let aiToolsData = [];
-        const GOOGLE_SHEET_ID = '1iTxB-3HVspjIWK9OW4mcbT93NI79-K2IjscNlecgy2s';
-        const GOOGLE_SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${https://script.google.com/macros/s/AKfycbxU3c7BBF8Stq3lcHySOpGrdfGdVLLw6HxLQfER8WmnWJpkO_TzaRHTq-cbAkbm1zxTOg/exec}/values/Sheet1!A:Z?key=`;
+        // החלף ב-ID של הגיליון שלך וב-URL של ה-Web App של Apps Script
+        const GOOGLE_SHEET_ID = '1iTxB-3HVspjIWK9OW4mcbT93NI79-K2IjscNlecgy2s'; // זהו ה-ID של הגיליון עצמו
+        // זהו ה-URL של ה-Web App שפרסת מ-Apps Script
+        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxU3c7BBF8Stq3lcHySOpGrdfGdVLLw6HxLQfER8WmnWJpkO_TzaRHTq-cbAkbm1zxTOg/exec'; // לדוגמה: https://script.google.com/macros/s/AKfyc.../exec
 
         // Initial sign-in (custom token or anonymous)
         async function initialSignIn() {
@@ -191,21 +234,54 @@
                 <div class="card"><h4 class="text-xl font-semibold mb-2">קורס: הנדסת פרומפטים</h4><p class="text-gray-600">כיצד לכתוב הנחיות יעילות למודלי שפה גדולים.</p><button class="btn-secondary mt-4 text-sm">התחל ללמוד</button></div>
             `;
             document.getElementById('ai-generator-content').innerHTML = `
-                <h4 class="text-2xl font-semibold mb-4 text-gray-800 text-center">מחולל AI</h4>
-                <div class="mb-4"><label for="promptInput" class="block text-gray-700 text-sm font-bold mb-2">הזן הנחיה (פרומפט):</label><textarea id="promptInput" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32" placeholder="כתוב כאן את ההנחיה שלך..."></textarea></div>
-                <button id="generateBtn" class="btn-primary w-full">צור תוכן</button>
-                <div id="generatorOutput" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px] text-gray-800 whitespace-pre-wrap">הפלט יופיע כאן...</div>
-                <div id="generatorLoading" class="hidden text-center mt-4 text-indigo-600">טוען...</div>
+                <h4 class="text-2xl font-semibold mb-4 text-gray-800 text-center">מחולל בינה מלאכותית</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="col-span-1">
+                        <div class="mb-4">
+                            <label for="promptInput" class="block text-gray-700 text-sm font-bold mb-2">הזן הנחיה (פרומפט):</label>
+                            <textarea id="promptInput" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-48" placeholder="כתוב כאן את ההנחיה שלך..."></textarea>
+                        </div>
+                        <button id="generateBtn" class="btn-primary w-full">צור תוכן</button>
+                        <div id="generatorLoading" class="hidden text-center mt-4 text-indigo-600">טוען...</div>
+                    </div>
+                    <div class="col-span-1 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h5 class="text-xl font-semibold mb-3 text-gray-800">הנחיות וטיפים לכלי נבחר: <span id="selectedToolName" class="text-indigo-600"></span></h5>
+                        <div id="promptExamples" class="text-gray-700 text-sm">
+                            בחר כלי AI ממאגר הכלים כדי לראות דוגמאות פרומפטים וטיפים.
+                        </div>
+                        <div class="mt-4">
+                            <h6 class="font-semibold text-gray-800">סגנון פרומפט מומלץ:</h6>
+                            <p id="recommendedPromptStyle" class="text-gray-700 text-sm">לא נבחר כלי.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="generatorOutput" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px] text-gray-800 whitespace-pre-wrap">
+                    הפלט יופיע כאן...
+                </div>
             `;
             document.getElementById('generateBtn').onclick = generateAIContent;
-            await loadAIToolsFromGoogleSheets();
+
+            await loadAIToolsFromGoogleSheets(); // טען את הכלים לפני רינדור מאגר הכלים
             document.getElementById('ai-tools-content').innerHTML = `
-                <h4 class="text-2xl font-semibold mb-4 text-gray-800 text-center">מאגר כלי AI</h4>
-                <div class="mb-4"><input type="text" id="toolSearchInput" placeholder="חפש כלי AI..." class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></div>
-                <div id="aiToolsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <h4 class="text-2xl font-bold mb-4 text-gray-800 text-center">מאגר כלי AI</h4>
+                <div class="mb-4">
+                    <input type="text" id="toolSearchInput" placeholder="חפש כלי AI..." class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label for="professionFilter" class="block text-gray-700 text-sm font-bold mb-2">סנן לפי מקצוע:</label>
+                    <select id="professionFilter" class="shadow border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">כל המקצועות</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div id="aiToolsList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <!-- כלי AI ייטענו כאן דינמית ככפתורים -->
+                </div>
             `;
+            populateProfessionFilter();
             renderAITools(aiToolsData);
             document.getElementById('toolSearchInput').onkeyup = filterAITools;
+            document.getElementById('professionFilter').onchange = filterAITools;
         }
 
         // Display restricted content
@@ -309,12 +385,16 @@
         // Load AI tools from Google Sheets
         async function loadAIToolsFromGoogleSheets() {
             try {
+                // שימוש ב-GOOGLE_SHEETS_API_URL שמוגדר כעת ל-Web App
                 const response = await fetch(GOOGLE_SHEETS_API_URL);
                 const data = await response.json();
-                if (data?.values?.length > 1) {
-                    const headers = data.values[0];
-                    aiToolsData = data.values.slice(1).map(row => headers.reduce((obj, h, i) => ({ ...obj, [h]: row[i] || '' }), {}));
-                } else { aiToolsData = []; }
+
+                if (data && data.length > 0) { // ה-Web App אמור להחזיר מערך של אובייקטים
+                    aiToolsData = data;
+                } else {
+                    console.warn("No AI tools data found in Google Sheets or unexpected format.");
+                    aiToolsData = [];
+                }
                 renderAITools(aiToolsData);
             } catch (error) {
                 console.error("Error loading AI tools from Google Sheets:", error);
@@ -322,32 +402,102 @@
             }
         }
 
-        // Render AI tools
+        // Function to get Font Awesome icon based on tool name (example)
+        function getToolIcon(toolName) {
+            toolName = toolName.toLowerCase();
+            if (toolName.includes('chatgpt') || toolName.includes('openai')) return 'fas fa-comments';
+            if (toolName.includes('midjourney') || toolName.includes('dall-e')) return 'fas fa-paint-brush';
+            if (toolName.includes('github copilot') || toolName.includes('code')) return 'fas fa-code';
+            if (toolName.includes('bard') || toolName.includes('gemini')) return 'fas fa-robot';
+            if (toolName.includes('notion ai')) return 'fas fa-file-alt';
+            return 'fas fa-brain'; // Default icon
+        }
+
+        // Render AI tools as buttons
         function renderAITools(toolsToRender) {
             const listDiv = document.getElementById('aiToolsList');
             if (!listDiv) return;
             listDiv.innerHTML = toolsToRender.length === 0 ? `<p class="text-gray-600 text-center col-span-full">לא נמצאו כלי AI התואמים לחיפוש.</p>` : '';
+
             toolsToRender.forEach(tool => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <h5 class="text-lg font-semibold mb-2">${tool['שם הכלי'] || 'שם לא ידוע'}</h5>
-                    <p class="text-gray-600 text-sm mb-2">${tool['תיאור קצר'] || 'אין תיאור.'}</p>
-                    ${tool['קישור לאתר'] ? `<a href="${tool['קישור לאתר']}" target="_blank" class="text-indigo-600 hover:underline text-sm mt-2 block">למידע נוסף</a>` : ''}
-                    ${tool['קטגוריה'] ? `<span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mt-2">${tool['קטגוריה']}</span>` : ''}
+                const toolButton = document.createElement('div');
+                toolButton.className = 'ai-tool-button';
+                toolButton.setAttribute('data-tool-id', tool.ID); // Store tool ID for later use
+                toolButton.innerHTML = `
+                    <i class="${getToolIcon(tool['שם הכלי'])} icon"></i>
+                    <span class="name">${tool['שם הכלי'] || 'שם לא ידוע'}</span>
                 `;
-                listDiv.appendChild(card);
+                toolButton.addEventListener('click', () => openToolDetailsModal(tool));
+                listDiv.appendChild(toolButton);
+            });
+        }
+
+        // Populate profession filter dropdown
+        function populateProfessionFilter() {
+            const professionFilter = document.getElementById('professionFilter');
+            const professions = new Set();
+            aiToolsData.forEach(tool => {
+                if (tool['מקצועות רלוונטיים']) {
+                    tool['מקצועות רלוונטיים'].split(',').forEach(p => professions.add(p.trim()));
+                }
+            });
+            professions.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p;
+                option.textContent = p;
+                professionFilter.appendChild(option);
             });
         }
 
         // Filter AI tools
         function filterAITools() {
-            const filterText = document.getElementById('toolSearchInput').value.toLowerCase();
-            const filteredTools = aiToolsData.filter(tool =>
-                ['שם הכלי', 'תיאור קצר', 'תיאור מפורט', 'קטגוריה'].some(key => (tool[key] || '').toLowerCase().includes(filterText))
-            );
+            const searchInput = document.getElementById('toolSearchInput').value.toLowerCase();
+            const selectedProfession = document.getElementById('professionFilter').value;
+
+            const filteredTools = aiToolsData.filter(tool => {
+                const matchesSearch = ['שם הכלי', 'תיאור קצר', 'תיאור מפורט', 'קטגוריה'].some(key => (tool[key] || '').toLowerCase().includes(searchInput));
+                const matchesProfession = !selectedProfession || (tool['מקצועות רלוונטיים'] && tool['מקצועות רלוונטיים'].split(',').some(p => p.trim() === selectedProfession));
+                return matchesSearch && matchesProfession;
+            });
             renderAITools(filteredTools);
         }
+
+        // AI Tool Details Modal functions
+        const aiToolDetailsModal = document.getElementById('aiToolDetailsModal');
+        const closeToolDetailsModalBtn = document.getElementById('closeToolDetailsModalBtn');
+        const useToolInGeneratorBtn = document.getElementById('useToolInGeneratorBtn');
+        let currentSelectedTool = null; // To hold the tool object for the generator
+
+        function openToolDetailsModal(tool) {
+            currentSelectedTool = tool; // Store the selected tool
+            document.getElementById('toolDetailsTitle').textContent = tool['שם הכלי'] || 'פרטי כלי AI';
+            document.getElementById('toolDetailsDescription').textContent = tool['תיאור מפורט'] || tool['תיאור קצר'] || 'אין תיאור מפורט.';
+            document.getElementById('toolDetailsCategory').textContent = tool['קטגוריה'] || 'לא ידוע';
+            document.getElementById('toolDetailsBenefits').textContent = tool['יתרונות'] || 'אין יתרונות מפורטים.';
+            document.getElementById('toolDetailsDrawbacks').textContent = tool['חסרונות'] || 'אין חסרונות מפורטים.';
+            document.getElementById('toolDetailsProfessions').textContent = tool['מקצועות רלוונטיים'] || 'לא רלוונטי למקצועות ספציפיים.';
+            document.getElementById('toolDetailsPromptStyle').textContent = tool['סגנון פרומפט מומלץ'] || 'אין המלצה.';
+            document.getElementById('toolDetailsLink').href = tool['קישור לאתר'] || '#';
+            aiToolDetailsModal.classList.remove('hidden');
+        }
+
+        closeToolDetailsModalBtn.addEventListener('click', () => aiToolDetailsModal.classList.add('hidden'));
+
+        useToolInGeneratorBtn.addEventListener('click', () => {
+            if (currentSelectedTool) {
+                // Populate prompt examples in the generator section
+                document.getElementById('selectedToolName').textContent = currentSelectedTool['שם הכלי'] || '';
+                document.getElementById('promptExamples').innerHTML = `
+                    <p class="font-semibold mb-2">דוגמאות פרומפטים:</p>
+                    <pre class="bg-gray-100 p-3 rounded-lg text-xs whitespace-pre-wrap">${currentSelectedTool['דוגמאות שימוש/פרומפטים'] || 'אין דוגמאות זמינות.'}</pre>
+                `;
+                document.getElementById('recommendedPromptStyle').textContent = currentSelectedTool['סגנון פרומפט מומלץ'] || 'אין המלצה.';
+
+                // Scroll to AI Generator section
+                document.getElementById('ai-generator').scrollIntoView({ behavior: 'smooth' });
+                aiToolDetailsModal.classList.add('hidden'); // Close the modal
+            }
+        });
 
         document.getElementById('purchaseCouponBtn').addEventListener('click', () => { authModal.classList.remove('hidden'); renderAuthForms(); });
     </script>
